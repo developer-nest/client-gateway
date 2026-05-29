@@ -6,12 +6,16 @@ interface EnvVars {
   PORT: number;
   VEHICLE_MICROSERVICE_HOST: string;
   VEHICLE_MICROSERVICE_PORT: number;
+  DRIVER_MICROSERVICE_HOST: string;
+  DRIVER_MICROSERVICE_PORT: number;
 }
 
 export const envsSchema = Joi.object({
   PORT: Joi.number().required(),
   VEHICLE_MICROSERVICE_HOST: Joi.string().required(),
   VEHICLE_MICROSERVICE_PORT: Joi.number().required(),
+  DRIVER_MICROSERVICE_HOST: Joi.string().required(),
+  DRIVER_MICROSERVICE_PORT: Joi.number().required(),
 }).unknown(true);
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -28,4 +32,6 @@ export const envs = {
   port: envVars.PORT,
   vehicleMicroserviceHost: envVars.VEHICLE_MICROSERVICE_HOST,
   vehicleMicroservicePort: envVars.VEHICLE_MICROSERVICE_PORT,
+  driverMicroserviceHost: envVars.DRIVER_MICROSERVICE_HOST,
+  driverMicroservicePort: envVars.DRIVER_MICROSERVICE_PORT,
 };

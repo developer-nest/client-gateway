@@ -1,0 +1,8 @@
+export enum StatusDriver {
+  VACACIONES = 'VACACIONES',
+  FRANCO = 'FRANCO',
+  CIUDAD = 'CIUDAD',
+  INTERIOR = 'INTERIOR',
+  DISPONIBLE = 'DISPONIBLE',
+  OTRO = 'OTRO',
+}
