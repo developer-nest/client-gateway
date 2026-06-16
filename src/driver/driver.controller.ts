@@ -10,56 +10,64 @@ import {
   Delete,
   Inject,
   Query,
-  HttpStatus,
+  OnModuleInit,
 } from '@nestjs/common';
 
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
 import { DRIVER_SERVICE } from 'src/config/service';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { ClientGrpc } from '@nestjs/microservices';
 import { PaginationDTO } from 'src/common';
-import { firstValueFrom } from 'rxjs';
+import { Observable } from 'rxjs';
+import {
+  Driver,
+  DriverById,
+  DriverList,
+  UpdateDriverRequest,
+} from './interfaces/driver.interface';
+
+interface DriverServiceClient {
+  create(data: CreateDriverDto): Observable<Driver>;
+  findAll(data: PaginationDTO): Observable<DriverList>;
+  findOne(data: DriverById): Observable<Driver>;
+  update(data: UpdateDriverRequest): Observable<Driver>;
+  remove(data: DriverById): Observable<Driver>;
+}
 
 @Controller('driver')
-export class DriverController {
-  constructor(@Inject(DRIVER_SERVICE) private driversClient: ClientProxy) {}
+export class DriverController implements OnModuleInit {
+  private driverService: DriverServiceClient;
+  constructor(@Inject(DRIVER_SERVICE) private driversClient: ClientGrpc) {}
 
-  async create(@Body() createDriverDto: CreateDriverDto) {
-    try {
-      return await firstValueFrom(
-        this.driversClient.send('createDriver', createDriverDto),
-      );
-    } catch (error) {
-      throw new RpcException(error);
-    }
+  onModuleInit() {
+    this.driverService =
+      this.driversClient.getService<DriverServiceClient>('DriverService');
+  }
+  @Post()
+  create(@Body() createDriverDto: CreateDriverDto) {
+    console.log('¡Petición recibida!', createDriverDto);
+    return this.driverService.create(createDriverDto);
   }
 
   @Get()
   findAll(@Query() paginationDTO: PaginationDTO) {
-    return this.driversClient.send('findAllDriver', paginationDTO);
+    return this.driverService.findAll(paginationDTO);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await firstValueFrom(
-      this.driversClient.send('findOneDriver', { id }),
-    );
+  findOne(@Param('id') id: string) {
+    //console.log('¡Petición recibida!', id);
+    return this.driverService.findOne({ id });
   }
 
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateDriverDto: UpdateDriverDto,
-  ) {
-    return await firstValueFrom(
-      this.driversClient.send('updateDriver', { id, ...updateDriverDto }),
-    );
+  update(@Param('id') id: string, @Body() updateDriverDto: UpdateDriverDto) {
+    //console.log('¡Petición recibida!', id, updateDriverDto);
+    return this.driverService.update({ id, ...updateDriverDto });
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await firstValueFrom(
-      this.driversClient.send('removeDriver', { id }),
-    );
+  remove(@Param('id') id: string) {
+    return this.driverService.remove({ id });
   }
 }

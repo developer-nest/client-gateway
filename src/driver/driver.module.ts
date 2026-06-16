@@ -5,6 +5,7 @@ import { DriverController } from './driver.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { DRIVER_SERVICE } from 'src/config/service';
 import { envs } from 'src/config/envs';
+import { join } from 'path';
 
 @Module({
   controllers: [DriverController],
@@ -13,10 +14,14 @@ import { envs } from 'src/config/envs';
     ClientsModule.register([
       {
         name: DRIVER_SERVICE,
-        transport: Transport.TCP,
+        transport: Transport.GRPC,
         options: {
-          host: envs.driverMicroserviceHost,
-          port: envs.driverMicroservicePort,
+          package: 'driver',
+          protoPath: join(__dirname, 'driver.proto'),
+          url: `${envs.driverMicroserviceHost}:${envs.driverMicroservicePort}`,
+          loader: {
+            enums: String,
+          },
         },
       },
     ]),
