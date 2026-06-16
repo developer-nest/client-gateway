@@ -10,68 +10,62 @@ import {
   Delete,
   Inject,
   Query,
+  OnModuleInit,
 } from '@nestjs/common';
-import { ClientProxy, RpcException } from '@nestjs/microservices';
-import { firstValueFrom } from 'rxjs';
+import { ClientGrpc } from '@nestjs/microservices';
+import { Observable } from 'rxjs';
 import { PaginationDTO } from 'src/common';
 import { VEHICLE_SERVICE } from 'src/config/service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
+import {
+  UpdateVehicleRequest,
+  Vehicle,
+  VehicleById,
+  VehicleList,
+} from './interfaces/vehicle.interface';
+
+interface VehicleServiceClient {
+  create(data: CreateVehicleDto): Observable<Vehicle>;
+  findAll(data: PaginationDTO): Observable<VehicleList>;
+  findOne(data: VehicleById): Observable<Vehicle>;
+  update(data: UpdateVehicleRequest): Observable<Vehicle>;
+  remove(data: VehicleById): Observable<Vehicle>;
+}
 
 @Controller('vehicle')
-export class VehicleController {
-  constructor(@Inject(VEHICLE_SERVICE) private vehiclesClient: ClientProxy) {}
+export class VehicleController implements OnModuleInit {
+  private vehicleService: VehicleServiceClient;
+  constructor(@Inject(VEHICLE_SERVICE) private vehiclesClient: ClientGrpc) {}
+
+  onModuleInit() {
+    this.vehicleService =
+      this.vehiclesClient.getService<VehicleServiceClient>('VehiclesService');
+  }
 
   @Post()
   create(@Body() createVehicleDto: CreateVehicleDto) {
-    return this.vehiclesClient.send(
-      { cmd: 'create_vehicle' },
-      createVehicleDto,
-    );
+    console.log('¡Petición recibida!', createVehicleDto);
+    return this.vehicleService.create(createVehicleDto);
   }
 
   @Get()
   findAll(@Query() paginationDTO: PaginationDTO) {
-    return this.vehiclesClient.send({ cmd: 'find_all_vehicle' }, paginationDTO);
+    return this.vehicleService.findAll(paginationDTO);
   }
 
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    try {
-      return await firstValueFrom(
-        this.vehiclesClient.send({ cmd: 'find_one_vehicle' }, { id }),
-      );
-    } catch (error) {
-      throw new RpcException(error);
-    }
+  findOne(@Param('id') id: string) {
+    return this.vehicleService.findOne({ id });
   }
 
   @Patch(':id')
-  async update(
-    @Param('id') id: string,
-    @Body() updateVehicleDto: UpdateVehicleDto,
-  ) {
-    try {
-      return await firstValueFrom(
-        this.vehiclesClient.send(
-          { cmd: 'update_vehicle' },
-          { id, ...updateVehicleDto },
-        ),
-      );
-    } catch (error) {
-      throw new RpcException(error);
-    }
+  update(@Param('id') id: string, @Body() updateVehicleDto: UpdateVehicleDto) {
+    return this.vehicleService.update({ id, ...updateVehicleDto });
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    try {
-      return await firstValueFrom(
-        this.vehiclesClient.send({ cmd: 'delete_vehicle' }, { id }),
-      );
-    } catch (error) {
-      throw new RpcException(error);
-    }
+  remove(@Param('id') id: string) {
+    return this.vehicleService.remove({ id });
   }
 }
-``

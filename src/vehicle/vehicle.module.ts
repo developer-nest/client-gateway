@@ -5,6 +5,7 @@ import { VehicleController } from './vehicle.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { VEHICLE_SERVICE } from 'src/config/service';
 import { envs } from 'src/config/envs';
+import { join } from 'path';
 
 @Module({
   controllers: [VehicleController],
@@ -13,10 +14,14 @@ import { envs } from 'src/config/envs';
     ClientsModule.register([
       {
         name: VEHICLE_SERVICE,
-        transport: Transport.TCP,
+        transport: Transport.GRPC,
         options: {
-          host: envs.vehicleMicroserviceHost,
-          port: envs.vehicleMicroservicePort,
+          package: 'vehicle',
+          protoPath: join(__dirname, 'vehicle.proto'),
+          url: `${envs.vehicleMicroserviceHost}:${envs.vehicleMicroservicePort}`,
+          loader: {
+            enums: String,
+          },
         },
       },
     ]),
