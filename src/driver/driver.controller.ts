@@ -15,7 +15,7 @@ import {
 
 import { CreateDriverDto } from './dto/create-driver.dto';
 import { UpdateDriverDto } from './dto/update-driver.dto';
-import { DRIVER_SERVICE } from 'src/config/service';
+//import { DRIVER_SERVICE } from 'src/config/service';
 import { ClientGrpc } from '@nestjs/microservices';
 import { PaginationDTO } from 'src/common';
 import { Observable } from 'rxjs';
@@ -25,11 +25,13 @@ import {
   DriverList,
   UpdateDriverRequest,
 } from './interfaces/driver.interface';
+import { StatusDriverDto } from './dto/status-driver.dto';
+import { FLEET_SERVICE } from 'src/config/service';
 
 interface DriverServiceClient {
   create(data: CreateDriverDto): Observable<Driver>;
   findAll(data: PaginationDTO): Observable<DriverList>;
-  findOne(data: DriverById): Observable<Driver>;
+  findOne(data: DriverById): Observable<any>;
   update(data: UpdateDriverRequest): Observable<Driver>;
   remove(data: DriverById): Observable<Driver>;
 }
@@ -37,7 +39,7 @@ interface DriverServiceClient {
 @Controller('driver')
 export class DriverController implements OnModuleInit {
   private driverService: DriverServiceClient;
-  constructor(@Inject(DRIVER_SERVICE) private driversClient: ClientGrpc) {}
+  constructor(@Inject(FLEET_SERVICE) private driversClient: ClientGrpc) {}
 
   onModuleInit() {
     this.driverService =
@@ -45,13 +47,15 @@ export class DriverController implements OnModuleInit {
   }
   @Post()
   create(@Body() createDriverDto: CreateDriverDto) {
-    console.log('¡Petición recibida!', createDriverDto);
-    return this.driverService.create(createDriverDto);
+    const driver = this.driverService.create(createDriverDto);
+    console.log(driver);
+
+    return driver;
   }
 
   @Get()
-  findAll(@Query() paginationDTO: PaginationDTO) {
-    return this.driverService.findAll(paginationDTO);
+  findAll(@Query() statusDriverDto: StatusDriverDto) {
+    return this.driverService.findAll(statusDriverDto);
   }
 
   @Get(':id')

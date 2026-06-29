@@ -52,14 +52,26 @@ export class RpcCustomExceptionFilter implements ExceptionFilter {
   private mapGrpcStatusToHttpStatus(grpcCode: number): number {
     console.log('Código gRPC recibido:', grpcCode);
     switch (grpcCode) {
-      case 5:
-        return HttpStatus.NOT_FOUND; // NOT_FOUND
+      case 0:
+        return HttpStatus.OK; // OK
+      case 1:
+        return HttpStatus.GONE; // CANCELLED
       case 3:
         return HttpStatus.BAD_REQUEST; // INVALID_ARGUMENT
-      case 2:
+      case 4:
+        return HttpStatus.GATEWAY_TIMEOUT; // DEADLINE_EXCEEDED
+      case 5:
+        return HttpStatus.NOT_FOUND; // NOT_FOUND
+      case 6:
         return HttpStatus.CONFLICT; // ALREADY_EXISTS
       case 7:
         return HttpStatus.FORBIDDEN; // PERMISSION_DENIED
+      case 9:
+        return HttpStatus.BAD_REQUEST; // FAILED_PRECONDITION
+      case 10:
+        return HttpStatus.CONFLICT; // ABORTED
+      case 16:
+        return HttpStatus.UNAUTHORIZED; // UNAUTHENTICATED
       default:
         return HttpStatus.INTERNAL_SERVER_ERROR;
     }

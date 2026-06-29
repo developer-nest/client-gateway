@@ -1,78 +1,38 @@
-/* eslint-disable prettier/prettier */
-//import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
 import {
+  IsString,
+  IsNumber,
   IsBoolean,
   IsEnum,
-  IsInt,
-  IsNumber,
   IsOptional,
-  IsString,
-  Length,
-  Max,
   Min,
+  IsNotEmpty,
 } from 'class-validator';
-import { StatusVehicle } from '../enum/status.enum';
+import { CarStatus } from '../enum/status.enum';
 
 export class CreateVehicleDto {
-  //@ApiProperty({ example: 'ABC1234' })
+  @IsOptional()
   @IsString()
-  @Length(7, 7)
-  numCar: string;
+  numCar: string | null;
 
-  //@ApiProperty({ example: 4 })
-  @IsInt()
-  @Min(1)
-  @Max(40)
-  @Type(() => Number)
+  @IsNotEmpty()
+  @IsNumber()
+  @Min(1) // Asumiendo que al menos debe haber 1 asiento
   seatCount: number;
 
-  //@ApiProperty({ example: 15000.5, required: false })
   @IsOptional()
-  @IsNumber({ maxDecimalPlaces: 1 })
+  @IsNumber()
   @Min(0)
-  @Type(() => Number)
-  currentMileage?: number;
+  currentMileage: number | null;
 
-  //@ApiProperty({ example: 'Toyota' })
+  @IsOptional()
   @IsString()
-  brand: string;
+  brand: string | null;
 
-  //@ApiProperty({ default: true, required: false })
   @IsOptional()
   @IsBoolean()
-  @Type(() => Boolean)
-  isActive?: boolean;
+  isActive!: boolean | null;
 
-  //   @ApiProperty({
-  //     description: 'Fecha del status(inicio)',
-  //     format: 'YYMMDDHHMM',
-  //     required: false,
-  //   })
-  @IsString()
   @IsOptional()
-  dateIn?: string;
-
-  //   @ApiProperty({
-  //     description: 'Fecha del status(fin)',
-  //     format: 'YYMMDDHHMM',
-  //     required: false,
-  //   })
-  @IsString()
-  @IsOptional()
-  dateEnd?: string;
-
-  //   @ApiProperty({
-  //     example: StatusVehicle.DISPONIBLE,
-  //     description: 'status del carro',
-  //     enum: StatusVehicle,
-  //     default: StatusVehicle.DISPONIBLE,
-  //     required: false,
-  //   })
-  @IsOptional()
-  @IsEnum(StatusVehicle, {
-    message:
-      'typeProgramming debe ser: transfer, visita, circuito, excursión, libre',
-  })
-  status?: StatusVehicle;
+  @IsEnum(CarStatus)
+  currentSituation: CarStatus | null;
 }

@@ -15,7 +15,7 @@ import {
 import { ClientGrpc } from '@nestjs/microservices';
 import { Observable } from 'rxjs';
 import { PaginationDTO } from 'src/common';
-import { VEHICLE_SERVICE } from 'src/config/service';
+import { FLEET_SERVICE } from 'src/config/service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import {
@@ -24,6 +24,7 @@ import {
   VehicleById,
   VehicleList,
 } from './interfaces/vehicle.interface';
+import { VehicleStatusDto } from './dto/vehicle-status.dto';
 
 interface VehicleServiceClient {
   create(data: CreateVehicleDto): Observable<Vehicle>;
@@ -36,22 +37,22 @@ interface VehicleServiceClient {
 @Controller('vehicle')
 export class VehicleController implements OnModuleInit {
   private vehicleService: VehicleServiceClient;
-  constructor(@Inject(VEHICLE_SERVICE) private vehiclesClient: ClientGrpc) {}
+  constructor(@Inject(FLEET_SERVICE) private vehiclesClient: ClientGrpc) {}
 
   onModuleInit() {
     this.vehicleService =
-      this.vehiclesClient.getService<VehicleServiceClient>('VehiclesService');
+      this.vehiclesClient.getService<VehicleServiceClient>('VehicleService');
   }
 
   @Post()
   create(@Body() createVehicleDto: CreateVehicleDto) {
-    console.log('¡Petición recibida!', createVehicleDto);
     return this.vehicleService.create(createVehicleDto);
   }
 
   @Get()
-  findAll(@Query() paginationDTO: PaginationDTO) {
-    return this.vehicleService.findAll(paginationDTO);
+  findAll(@Query() vehicleStatusDto: VehicleStatusDto) {
+    console.log(vehicleStatusDto);
+    return this.vehicleService.findAll(vehicleStatusDto);
   }
 
   @Get(':id')
