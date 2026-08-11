@@ -13,12 +13,13 @@ import {
   OnModuleInit,
 } from '@nestjs/common';
 import { ClientGrpc } from '@nestjs/microservices';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { PaginationDTO } from 'src/common';
 import { FLEET_SERVICE } from 'src/config/service';
 import { CreateVehicleDto } from './dto/create-vehicle.dto';
 import { UpdateVehicleDto } from './dto/update-vehicle.dto';
 import {
+  AvailabilityFilter,
   UpdateVehicleRequest,
   Vehicle,
   VehicleById,
@@ -28,10 +29,13 @@ import { VehicleStatusDto } from './dto/vehicle-status.dto';
 
 interface VehicleServiceClient {
   create(data: CreateVehicleDto): Observable<Vehicle>;
-  findAll(data: PaginationDTO): Observable<VehicleList>;
+  findAll(data: VehicleStatusDto): Observable<VehicleList>;
   findOne(data: VehicleById): Observable<Vehicle>;
   update(data: UpdateVehicleRequest): Observable<Vehicle>;
   remove(data: VehicleById): Observable<Vehicle>;
+  findAvailableByDate(
+    data: AvailabilityFilter,
+  ): Observable<{ items: Vehicle[] }>;
 }
 
 @Controller('vehicle')
@@ -53,6 +57,13 @@ export class VehicleController implements OnModuleInit {
   findAll(@Query() vehicleStatusDto: VehicleStatusDto) {
     console.log(vehicleStatusDto);
     return this.vehicleService.findAll(vehicleStatusDto);
+  }
+
+  @Get('available')
+  async findAvailableByDate(@Query() availabilityFilter: AvailabilityFilter) {
+    return firstValueFrom(
+      this.vehicleService.findAvailableByDate(availabilityFilter),
+    );
   }
 
   @Get(':id')

@@ -9,14 +9,18 @@ export interface VehicleById {
 }
 
 export interface Vehicle {
-  id: string | null;
-  numCar: string | null;
+  id: string;
+  numCar: string;
   seatCount: number;
-  currentMileage: number | null;
-  brand: string | null;
-  isActive: boolean | null;
-  currentSituation: CarStatus | null;
+  currentMileage: number;
+  brand: string;
+  isActive: boolean;
+  currentSituation: CarStatus;
   //status: StatusVehicle;
+}
+
+export interface AvailabilityFilter {
+  date: string;
 }
 
 export interface VehicleList {
