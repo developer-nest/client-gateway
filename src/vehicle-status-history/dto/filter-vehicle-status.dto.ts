@@ -1,15 +1,16 @@
 import { IsUUID, IsOptional, IsEnum, IsDateString } from 'class-validator';
 import { PaginationDTO } from 'src/common';
-import { DriverSituation } from 'src/driver/enum/status.enum';
 
-export class FilterDriverStatusHistoryDto extends PaginationDTO {
+import { CarStatus } from 'src/vehicle/enum/status.enum';
+
+export class FilterVehicleStatusHistoryDto extends PaginationDTO {
   @IsUUID()
   @IsOptional()
-  driverId?: string;
+  vehicleId?: string;
 
-  @IsEnum(DriverSituation)
+  @IsEnum(CarStatus)
   @IsOptional()
-  status?: DriverSituation;
+  status?: CarStatus;
 
   @IsDateString()
   @IsOptional()

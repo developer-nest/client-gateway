@@ -34,12 +34,12 @@ interface DriverStatusHistoryServiceClient {
 export class DriverStatusHistoryController implements OnModuleInit {
   private driverStatusHistoryService: DriverStatusHistoryServiceClient;
   constructor(
-    @Inject(FLEET_SERVICE) private driversVehiclesClient: ClientGrpc,
+    @Inject(FLEET_SERVICE) private driversStatusClient: ClientGrpc,
   ) {}
 
   onModuleInit() {
     this.driverStatusHistoryService =
-      this.driversVehiclesClient.getService<DriverStatusHistoryServiceClient>(
+      this.driversStatusClient.getService<DriverStatusHistoryServiceClient>(
         'DriverStatusService',
       );
   }
