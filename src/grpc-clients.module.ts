@@ -1,7 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { FLEET_SERVICE } from './config/service';
+import { FLEET_SERVICE, MAINTENANCE_SERVICE } from './config/service';
 import { envs } from './config/envs';
 import { join } from 'path';
 
@@ -15,6 +15,18 @@ import { join } from 'path';
           package: 'fleetService',
           protoPath: join(__dirname, 'proto/fleet-service.proto'),
           url: `${envs.fleetMicroserviceHost}:${envs.fleetMicroservicePort}`,
+          loader: { enums: String },
+        },
+      },
+    ]),
+    ClientsModule.register([
+      {
+        name: MAINTENANCE_SERVICE,
+        transport: Transport.GRPC,
+        options: {
+          package: 'transport_service',
+          protoPath: join(__dirname, 'proto/transport-service.proto'),
+          url: `${envs.maintenanceMicroserviceHost}:${envs.maintenanceMicroservicePort}`,
           loader: { enums: String },
         },
       },

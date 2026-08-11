@@ -68,7 +68,7 @@ message Driver {
   bool isActive = 5;
   string category  = 6;
   string fixedVehicleId = 7;
-  string currentSituation = 8;
+  DriverSituation currentSituation = 8;
 }
 
 message DriverDetail {
@@ -80,8 +80,8 @@ message DriverDetail {
   string category  = 6;
   string fixedVehicleId = 7;   // nullable
   Vehicle fixedVehicle   = 8;  // nullable: populated si tiene carro fijo
-  string currentSituation = 9;
-  repeated DriverStatusHistory statusHistory = 10;
+  DriverSituation currentSituation = 9;
+  
 }
 
 message CreateDriverDto {  
@@ -89,9 +89,9 @@ message CreateDriverDto {
   string address = 2;
   string idCard = 3;
   bool isActive = 4;
-  string category  = 6;
-  string fixedVehicleId = 7;
-  string currentSituation = 8;
+  string category  = 5;
+  string fixedVehicleId = 6;
+  DriverSituation currentSituation = 7;
   }
 
 message UpdateDriverDto {  
@@ -102,7 +102,7 @@ message UpdateDriverDto {
   bool isActive = 5;
   string category  = 6;
   string fixedVehicleId = 7;
-  string currentSituation = 8;
+  DriverSituation currentSituation = 8;
 }
 
 message DriverList {
@@ -121,10 +121,12 @@ service VehicleService {
   rpc FindOne (ById) returns (VehicleDetail) {}
   rpc Update (UpdateVehicleDto) returns (Vehicle) {}
   rpc Remove (ById) returns (Vehicle) {}
+  rpc FindAvailableByDate (AvailabilityFilter) returns (VehicleAvailabilityList) {} 
 }
 
-
-
+message VehicleAvailabilityList {
+  repeated Vehicle items = 1;
+}
 
 
 message Vehicle {
@@ -134,7 +136,7 @@ message Vehicle {
   float currentMileage = 4;  
   bool isActive = 5;
   string brand = 6;
-  string currentSituation = 7;
+  CarStatus currentSituation = 7;
 }
 
 message VehicleDetail {
@@ -145,8 +147,8 @@ message VehicleDetail {
   float  currentMileage = 5;
   bool   isActive       = 6;
   Driver fixedDriver    = 7;  // nullable: populated si tiene chofer fijo
-  string currentSituation = 8;
-  repeated VehicleStatusHistory statusHistory = 9;
+  CarStatus currentSituation = 8;
+  
 }
 
 message CreateVehicleDto {  
@@ -155,7 +157,7 @@ message CreateVehicleDto {
   float currentMileage = 3;
   bool isActive = 4;
   string brand = 5;
-  string currentSituation = 6;
+  CarStatus currentSituation = 6;
 }
 
 message UpdateVehicleDto {  
@@ -165,7 +167,7 @@ message UpdateVehicleDto {
   float currentMileage = 4;
   bool isActive = 5;
   string brand = 6;
-  string currentSituation = 7;
+  CarStatus currentSituation = 7;
   
 }
 
@@ -177,46 +179,11 @@ message VehicleList {
   int32 totalPages = 5;
 }
 
-// ═══════════════════════════════════════════════
-// DRIVER-VEHICLE SERVICE (relación carro-chofer)
-// ═══════════════════════════════════════════════
-
-service DriverVehicleService {
-  rpc Assign  (AssignDriverVehicleDto) returns (DriverVehicle)     {}
-  rpc FindAll (DriverVehicleFilter)    returns (DriverVehicleList) {}
-  rpc FindOne (ById)                   returns (DriverVehicle)     {}
-  rpc Remove  (ById)                   returns (DriverVehicle)     {}
+message AvailabilityFilter {
+      string date = 1;
 }
 
-message DriverVehicle {
-  string  id        = 1;
-  string  date      = 2;
-  string  driverId  = 3;
-  string  vehicleId = 4;
-  Driver  driver    = 5;  // populated on FindOne
-  Vehicle vehicle   = 6;  // populated on FindOne
-}
 
-message AssignDriverVehicleDto {
-  string driverId  = 1;
-  string vehicleId = 2;
-}
-
-message DriverVehicleFilter {
-  int32  page      = 1;
-  int32  limit     = 2;
-  string driverId  = 3;  // opcional
-  string vehicleId = 4;  // opcional
-  string date      = 5;  // opcional: filtrar por fecha
-}
-
-message DriverVehicleList {
-  repeated DriverVehicle items      = 1;
-  int32                  total      = 2;
-  int32                  page       = 3;
-  int32                  limit      = 4;
-  int32                  totalPages = 5;
-}
 
 // ═══════════════════════════════════════════════
 // DRIVER STATUS HISTORY SERVICE (situación del chofer)
@@ -249,7 +216,9 @@ message DriverStatusFilter {
   int32           limit     = 2;
   string          driverId  = 3;  // opcional
   DriverSituation status    = 4;  // opcional
-  string          date      = 5;  // opcional: filtrar por fecha
+  string          date      = 5;  // opcional: fecha exacta
+  string          dateFrom  = 6;  // opcional: inicio de rango
+  string          dateTo    = 7;  // opcional: fin de rango
 }
 
 message DriverStatusHistoryList {
@@ -267,7 +236,7 @@ message DriverStatusHistoryList {
 // ═══════════════════════════════════════════════
 
 service VehicleStatusService {
-  rpc Create  (CreateVehicleStatusDto) returns (VehicleStatusHistory)     {}
+  
   rpc FindAll (VehicleStatusFilter)    returns (VehicleStatusHistoryList) {}
   rpc FindOne (ById)                   returns (VehicleStatusHistory)     {}
 }
@@ -292,7 +261,9 @@ message VehicleStatusFilter {
   int32     limit     = 2;
   string    vehicleId = 3;  // opcional
   CarStatus status    = 4;  // opcional
-  string    date      = 5;  // opcional: filtrar por fecha
+  string    date      = 5;  // opcional: fecha exacta
+  string    dateFrom  = 6;  // opcional: inicio de rango
+  string    dateTo    = 7;  // opcional: fin de rango
 }
 
 message VehicleStatusHistoryList {

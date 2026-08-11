@@ -1,0 +1,217 @@
+syntax = "proto3";
+
+package transport_service;
+
+// ═══════════════════════════════════════════════
+// ENUMS
+// ═══════════════════════════════════════════════
+
+enum ScheduleType {
+  TRANSFER  = 0;
+  VISIT     = 1;
+  CIRCUIT   = 2;
+  EXCURSION = 3;
+}
+
+enum ChangeType {
+  PASSENGER_COUNT = 0;
+  START_TIME      = 1;
+  SCHEDULE        = 2;
+  VEHICLE         = 3;
+  DRIVER          = 4;
+}
+
+// ═══════════════════════════════════════════════
+// MENSAJES COMPARTIDOS
+// ═══════════════════════════════════════════════
+
+message ById {
+  string id = 1;
+}
+
+// ═══════════════════════════════════════════════
+// TRANSPORT REQUEST SERVICE (Solicitud de transporte)
+// ═══════════════════════════════════════════════
+
+service TransportRequestService {
+  rpc Create  (CreateTransportRequestDto) returns (TransportRequest)     {}
+  rpc FindAll (TransportRequestFilter)    returns (TransportRequestList) {}
+  rpc FindOne (ById)                      returns (TransportRequest)     {}
+  rpc Update  (UpdateTransportRequestDto) returns (TransportRequest)     {}
+  rpc Remove  (ById)                      returns (TransportRequest)     {}
+  rpc GetArrastres (ArrastreFilter)       returns (ArrastreList)         {}
+}
+
+message ArrastreFilter {
+  string date = 1;
+}
+
+message ArrastreItem {
+  string groupCode = 1;
+  string originCountry = 2;
+  int32 passengerCount = 3;
+  repeated string availableVehicleIds = 4;
+}
+
+message ArrastreList {
+  string date = 1;
+  repeated ArrastreItem items = 2;
+}
+
+message TransportRequest {
+  string          id                   = 1;
+  string          group_code           = 2;
+  string          origin_country       = 3;
+  int32           passenger_count      = 4;
+  string          date                 = 5;
+  string          start_time           = 6;
+  ScheduleType    schedule_type        = 7;
+  optional string schedule_description = 8;
+  optional float  delay_time           = 9;
+  optional float  km_to_travel         = 10;
+  optional string pickup_location      = 11;
+}
+
+message CreateTransportRequestDto {
+  string          group_code           = 1;
+  string          origin_country       = 2;
+  int32           passenger_count      = 3;
+  string          date                 = 4;
+  string          start_time           = 5;
+  ScheduleType    schedule_type        = 6;
+  optional string schedule_description = 7;
+  optional float  delay_time           = 8;
+  optional float  km_to_travel         = 9;
+  optional string pickup_location      = 10;
+}
+
+message UpdateTransportRequestDto {
+  string                id                   = 1;
+  optional string       group_code           = 2;
+  optional string       origin_country       = 3;
+  optional int32        passenger_count      = 4;
+  optional string       date                 = 5;
+  optional string       start_time           = 6;
+  optional ScheduleType schedule_type        = 7;
+  optional string       schedule_description = 8;
+  optional float        delay_time           = 9;
+  optional float        km_to_travel         = 10;
+  optional string       pickup_location      = 11;
+}
+
+message TransportRequestFilter {
+  optional int32        page          = 1;
+  optional int32        limit         = 2;
+  optional string       date          = 3;
+  optional string       group_code    = 4;
+  optional ScheduleType schedule_type = 5;
+}
+
+message TransportRequestList {
+  repeated TransportRequest items       = 1;
+  int32                     total       = 2;
+  int32                     page        = 3;
+  int32                     limit       = 4;
+  int32                     total_pages = 5;
+}
+
+// ═══════════════════════════════════════════════
+// ROUTE SHEET SERVICE (Hoja de ruta)
+// ═══════════════════════════════════════════════
+
+service RouteSheetService {
+  rpc Create   (CreateRouteSheetDto)    returns (RouteSheet) {}
+  rpc FindAll  (RouteSheetFilter)       returns (RouteSheetList) {}
+  rpc FindOne  (ById)                   returns (RouteSheet) {}
+  rpc Update   (UpdateRouteSheetDto)    returns (RouteSheet) {}
+  rpc Reassign (ReassignRouteSheetDto)  returns (RouteSheet) {}
+  rpc Remove   (ById)                   returns (RouteSheet) {}
+}
+
+message RouteSheet {
+  string          id          = 1;
+  string          date        = 2;
+  float           km_start    = 3;
+  optional float  km_end      = 4;
+  string          start_time  = 5;
+  optional string end_time    = 6;
+  string          request_id  = 7;
+  string          driver_id   = 8;
+  string          vehicle_id  = 9;
+  optional string copilot_id  = 10;
+}
+
+message CreateRouteSheetDto {
+  string          date        = 1;
+  float           km_start    = 2;
+  string          start_time  = 3;
+  string          request_id  = 4;
+  string          driver_id   = 5;
+  string          vehicle_id  = 6;
+  optional string copilot_id  = 7;
+}
+
+message UpdateRouteSheetDto {
+  string          id          = 1;
+  optional float  km_end      = 2;
+  optional string end_time    = 3;
+  optional string copilot_id  = 4;
+}
+
+message ReassignRouteSheetDto {
+  string          id          = 1;
+  optional string driver_id   = 2;
+  optional string vehicle_id  = 3;
+}
+
+message RouteSheetFilter {
+  optional int32  page       = 1;
+  optional int32  limit      = 2;
+  optional string date       = 3;
+  optional string driver_id  = 4;
+  optional string vehicle_id = 5;
+  optional string request_id = 6;
+}
+
+message RouteSheetList {
+  repeated RouteSheet items       = 1;
+  int32               total       = 2;
+  int32               page        = 3;
+  int32               limit       = 4;
+  int32               total_pages = 5;
+}
+
+// ═══════════════════════════════════════════════
+// MODIFICATION SERVICE (Modificaciones al plan — solo lectura)
+// ═══════════════════════════════════════════════
+
+service ModificationService {
+  rpc FindAll (ModificationFilter) returns (ModificationList) {}
+  rpc FindOne (ById)                returns (Modification)     {}
+}
+
+message Modification {
+  string          id          = 1;
+  string          date        = 2;
+  ChangeType      change_type = 3;
+  string          new_value   = 4;
+  string          request_id  = 5;
+  optional string vehicle_id  = 6;
+  optional string driver_id   = 7;
+}
+
+message ModificationFilter {
+  optional int32      page        = 1;
+  optional int32      limit       = 2;
+  optional string     request_id  = 3;
+  optional ChangeType change_type = 4;
+  optional string     date        = 5;
+}
+
+message ModificationList {
+  repeated Modification items       = 1;
+  int32                 total       = 2;
+  int32                 page        = 3;
+  int32                 limit       = 4;
+  int32                 total_pages = 5;
+}

@@ -4,16 +4,16 @@ import 'dotenv/config';
 
 interface EnvVars {
   PORT: number;
-  VEHICLE_MICROSERVICE_HOST: string;
-  VEHICLE_MICROSERVICE_PORT: number;
+  MAINTENANCE_MICROSERVICE_HOST: string;
+  MAINTENANCE_MICROSERVICE_PORT: number;
   FLEET_MICROSERVICE_HOST: string;
   FLEET_MICROSERVICE_PORT: number;
 }
 
 export const envsSchema = Joi.object({
   PORT: Joi.number().required(),
-  VEHICLE_MICROSERVICE_HOST: Joi.string().required(),
-  VEHICLE_MICROSERVICE_PORT: Joi.number().required(),
+  MAINTENANCE_MICROSERVICE_HOST: Joi.string().required(),
+  MAINTENANCE_MICROSERVICE_PORT: Joi.number().required(),
   FLEET_MICROSERVICE_HOST: Joi.string().required(),
   FLEET_MICROSERVICE_PORT: Joi.number().required(),
 }).unknown(true);
@@ -30,8 +30,8 @@ const envVars: EnvVars = value;
 
 export const envs = {
   port: envVars.PORT,
-  vehicleMicroserviceHost: envVars.VEHICLE_MICROSERVICE_HOST,
-  vehicleMicroservicePort: envVars.VEHICLE_MICROSERVICE_PORT,
+  maintenanceMicroserviceHost: envVars.MAINTENANCE_MICROSERVICE_HOST,
+  maintenanceMicroservicePort: envVars.MAINTENANCE_MICROSERVICE_PORT,
   fleetMicroserviceHost: envVars.FLEET_MICROSERVICE_HOST,
   fleetMicroservicePort: envVars.FLEET_MICROSERVICE_PORT,
 };
