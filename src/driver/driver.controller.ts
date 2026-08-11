@@ -22,6 +22,7 @@ import { Observable } from 'rxjs';
 import {
   Driver,
   DriverById,
+  DriverDetail,
   DriverList,
   UpdateDriverRequest,
 } from './interfaces/driver.interface';
@@ -30,8 +31,8 @@ import { FLEET_SERVICE } from 'src/config/service';
 
 interface DriverServiceClient {
   create(data: CreateDriverDto): Observable<Driver>;
-  findAll(data: PaginationDTO): Observable<DriverList>;
-  findOne(data: DriverById): Observable<any>;
+  findAll(data: StatusDriverDto): Observable<DriverList>;
+  findOne(data: DriverById): Observable<DriverDetail>;
   update(data: UpdateDriverRequest): Observable<Driver>;
   remove(data: DriverById): Observable<Driver>;
 }
@@ -47,10 +48,7 @@ export class DriverController implements OnModuleInit {
   }
   @Post()
   create(@Body() createDriverDto: CreateDriverDto) {
-    const driver = this.driverService.create(createDriverDto);
-    console.log(driver);
-
-    return driver;
+    return this.driverService.create(createDriverDto);
   }
 
   @Get()
